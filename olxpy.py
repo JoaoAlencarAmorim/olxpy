@@ -6,6 +6,7 @@ import csv
 url = 'https://pe.olx.com.br/grande-recife/imoveis?o='
 quant_pag = 2 # int(input('Quantas páginas serão mineradas? '))
 
+################################################################################
 # FUNÇÃO QUE COLETARÁ OS LINKS DE ACESSO AS PÁGINAS DOS ANÚNCIOS DE IMÓVEIS
 def ScraperLinks(url, quant_pag):
 
@@ -67,43 +68,59 @@ def ScraperLinks(url, quant_pag):
 
 #links = ScraperLink(url, n_pag)
 
-
+################################################################################
 def ScraperPage(link):
 
 	req = Request(link, headers = {'User-Agent':'Mozilla/5.0'})
 	html = urlopen(req).read()
 	soup = BeautifulSoup(html, "html.parser")
 
-	try:
-		titulo = soup.find('h1', class_='sc-bZQynM sc-45jt43-0 bJcANz').get_text()
-	except AttributeError:
-		titulo = ""
+	chaves  = []
+	valores = []
 
 	try:
-		preco = soup.find('h2', class_='sc-bZQynM sc-1wimjbb-0 dSAaHC').get_text()
+		chaves.append('Título')
+		valores.append(soup.find('h1', class_='sc-bZQynM sc-45jt43-0 bJcANz').get_text())
 	except AttributeError:
-		preco = ""
+		pass
 
-	"""try:
-					categoria = soup.find('a', class_='sc-57pm5w-0 sc-1f2ug0x-2 dBeEuJ').get_text()
-				except AttributeError:
-					categoria = ""
-			
-				try:
-					tipo = soup.find('a', class_='sc-57pm5w-0 sc-1f2ug0x-2 dBeEuJ').get_text()
-				except AttributeError:
-					tipo = ""
-			
-				try:
-					preco = soup.find('h2', class_='sc-bZQynM sc-1wimjbb-0 dSAaHC').get_text()
-				except AttributeError:
-					preco = """
+	try:
+		chaves.append('Preço')
+		valores.append(soup.find('h2', class_='sc-bZQynM sc-1wimjbb-0 dSAaHC').get_text())
+	except AttributeError:
+		pass
 
-	print(titulo)
-	print(preco)
+	try:
+		tags1 = soup.find_all('div', class_='sc-EHOje sc-dVhcbM sc-1f2ug0x-3 bsaFM')
+	except AttributeError:
+		pass
 
+	for i in range(len(tags1)):
+		chaves.append(tags1[i].find('dt').get_text())
+		try:
+			valores.append(tags1[i].find('dd').get_text())
+		except:
+			try:
+				valores.append(tags1[i].find('a').get_text())
+			except:
+				pass
+
+	return chaves, valores
 
 links = ['https://pe.olx.com.br/grande-recife/imoveis/apartamentos-em-prazeres-jaboatao-dos-guararapes-724925921', 'https://pe.olx.com.br/grande-recife/imoveis/ref-433-aptos-em-pau-amarelo-pe-724926028']
+dic = {}
 
 for link in links:
-	ScraperPage(link)
+	chaves, valores = ScraperPage(link)
+	for i in range(len(chaves)):
+		try:
+			dic[chaves[i]].append(valores[i])
+		except KeyError:
+			dic[chaves[i]] = []
+			dic[chaves[i]].append(valores[i])
+			Categoria Tipo Área útil Quartos Banheiros Vagas na garagem
+
+print(dic)
+
+
+################################################################################
