@@ -2,6 +2,7 @@ from urllib.request import urlopen, Request
 from urllib.error import HTTPError, URLError
 from bs4 import BeautifulSoup
 import csv
+import pandas as pd
 
 url = 'https://pe.olx.com.br/grande-recife/imoveis?o='
 quant_pag = 2 # int(input('Quantas páginas serão mineradas? '))
@@ -66,7 +67,7 @@ def ScraperLinks(url, quant_pag):
 
 	return link
 
-#links = ScraperLink(url, n_pag)
+links = ScraperLinks(url, quant_pag)
 
 ################################################################################
 def ScraperPage(link):
@@ -107,20 +108,45 @@ def ScraperPage(link):
 
 	return chaves, valores
 
-links = ['https://pe.olx.com.br/grande-recife/imoveis/apartamentos-em-prazeres-jaboatao-dos-guararapes-724925921', 'https://pe.olx.com.br/grande-recife/imoveis/ref-433-aptos-em-pau-amarelo-pe-724926028']
-dic = {}
+#links = ['https://pe.olx.com.br/grande-recife/imoveis/apartamentos-em-prazeres-jaboatao-dos-guararapes-724925921', 'https://pe.olx.com.br/grande-recife/imoveis/ref-433-aptos-em-pau-amarelo-pe-724926028']
 
+dic = {}
+chaves_total = []
+quant = 0
+
+# Para cada uma das páginas:
 for link in links:
+
+	# Chame a função para coletar os dados da página e armazenar nas listas 'chaves' e 'valores'
 	chaves, valores = ScraperPage(link)
+
+	# para cada elemento da lista 'chaves':
 	for i in range(len(chaves)):
+
+		# Tente acrescentar o valor da lista 'valores' a chave correspondente no dicionário 'dic'
 		try:
 			dic[chaves[i]].append(valores[i])
+		# Caso essa chave não exista:
 		except KeyError:
+			# Defina para essa chave uma lista vazia
 			dic[chaves[i]] = []
+			# Acrescente o valor nulo para essa chave nas páginas anteriores
+			for j in range(quant):
+				dic[chaves[i]].append("")
+			# Acrescente o valor de 'valores' nessa lista (após os valores nulos)
 			dic[chaves[i]].append(valores[i])
-			Categoria Tipo Área útil Quartos Banheiros Vagas na garagem
 
-print(dic)
+	#Se não existir valor em alguma chave do dicionário já adicionada anteriormente, coloque o valor nulo
+	for x in dic:
+		if x not in chaves:
+			dic[x].append("")
+
+	quant += 1
+
+# Exportação para Excel
+df = pd.DataFrame(dic)
+df.to_excel(r'/home/joao/Códigos/git/envScraping/olxpy/dados.xlsx')
+
 
 
 ################################################################################
