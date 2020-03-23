@@ -1,12 +1,11 @@
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError, URLError
 from bs4 import BeautifulSoup
-import csv
 import pandas as pd
 import time
 
-url = 'https://pe.olx.com.br/grande-recife/imoveis?o='
-quant_pag = 100 # int(input('Quantas páginas serão mineradas? '))
+url = 'https://pe.olx.com.br/regiao-de-petrolina-e-garanhuns/imoveis?o='
+quant_pag = 83 # int(input('Quantas páginas serão mineradas? '))
 
 # FUNÇÃO QUE COLETARÁ OS LINKS DE ACESSO AS PÁGINAS DOS ANÚNCIOS DE IMÓVEIS
 def ScraperLinks(url, quant_pag):
@@ -113,8 +112,7 @@ def ScraperPage(link):
 
 #links = ['https://pe.olx.com.br/grande-recife/imoveis/apartamentos-em-prazeres-jaboatao-dos-guararapes-724925921', 'https://pe.olx.com.br/grande-recife/imoveis/ref-433-aptos-em-pau-amarelo-pe-724926028']
 
-
-# links = ScraperLinks(url, quant_pag)
+ScraperLinks(url, quant_pag)
 
 file = pd.ExcelFile('links.xlsx')
 df = pd.read_excel(file)
@@ -159,4 +157,4 @@ for link in df[0]:
 
 # Exportação para Excel
 df = pd.DataFrame(dic)
-df.to_excel(r'/home/joao/Códigos/git/envScraping/olxpy/dados.xlsx')
+df.to_excel(r'/home/joao/Códigos/git/envScraping/olxpy/PetrolinaPE/dados.xlsx')
